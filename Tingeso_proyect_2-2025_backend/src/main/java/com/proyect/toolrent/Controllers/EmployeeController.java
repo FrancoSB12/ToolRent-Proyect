@@ -1,0 +1,124 @@
+package com.proyect.toolrent.Controllers;
+
+import com.proyect.toolrent.Entities.EmployeeEntity;
+import com.proyect.toolrent.Services.ClientService;
+import com.proyect.toolrent.Services.EmployeeService;
+import com.proyect.toolrent.Services.ValidationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/employees")
+@CrossOrigin("*")
+public class EmployeeController {
+    private final ValidationService validationService;
+    private final EmployeeService employeeService;
+    private final ClientService clientService;
+
+    @Autowired
+    public EmployeeController(ValidationService validationService, EmployeeService employeeService, ClientService clientService) {
+        this.validationService = validationService;
+        this.employeeService = employeeService;
+        this.clientService = clientService;
+    }
+
+    //Create employee
+    @PreAuthorize("hasRole('Admin')")
+    @PostMapping
+    public ResponseEntity<?> createEmployee(@RequestBody EmployeeEntity employee, @RequestParam String password){
+        //First, it's verified that the employee doesn't exist
+        if(employeeService.exists(employee.getRun())){
+            return new ResponseEntity<>("El empleado ya existe", HttpStatus.CONFLICT);
+        }
+
+        //Then, the data is validated for accuracy
+        if(!validationService.isValidRun(employee.getRun())) {
+            return new ResponseEntity<>("Run del empleado invalido", HttpStatus.BAD_REQUEST);
+        }
+
+        if(!validationService.isValidName(employee.getName())){
+            return new ResponseEntity<>("Nombre del empleado invalido", HttpStatus.BAD_REQUEST);
+        }
+
+        if(!validationService.isValidName(employee.getSurname())){
+            return new ResponseEntity<>("Apellido del empleado invalido", HttpStatus.BAD_REQUEST);
+        }
+
+        if(!validationService.isValidEmail(employee.getEmail())){
+            return new ResponseEntity<>("Email del empleado invalido", HttpStatus.BAD_REQUEST);
+        }
+
+        if(!validationService.isValidCellphone(employee.getCellphone())){
+            return new ResponseEntity<>("Telefono del empleado invalido", HttpStatus.BAD_REQUEST);
+        }
+
+        EmployeeEntity newEmployee = employeeService.registerEmployee(employee, password);
+        return new ResponseEntity<>(newEmployee, HttpStatus.CREATED);
+    }
+
+    //Get employee
+    @PreAuthorize("hasAnyRole('Employee','Admin')")
+    @GetMapping("/")
+    public ResponseEntity<List<EmployeeEntity>> getAllEmployees(){
+        List<EmployeeEntity> employees = employeeService.getAllEmployees();
+        return new ResponseEntity<>(employees, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('Employee','Admin')")
+    @GetMapping("/{employeeRun}")
+    public ResponseEntity<EmployeeEntity> getEmployeeByRun(@PathVariable("employeeRun") String run){
+        return employeeService.getEmployeeByRun(run)
+                .map(employee -> new ResponseEntity<>(employee, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PreAuthorize("hasAnyRole('Employee','Admin')")
+    @GetMapping("/isAdmin")
+    public ResponseEntity<List<EmployeeEntity>> getEmployeeByIsAdmin(){
+        List<EmployeeEntity> employees = employeeService.getEmployeeIfItIsAdmin();
+        return new ResponseEntity<>(employees, HttpStatus.OK);
+    }
+
+    //Update employee
+    @PreAuthorize("hasRole('Admin')")
+    @PutMapping("/employee/{run}")
+    public ResponseEntity<?> updateEmployee(@PathVariable String run, @RequestBody EmployeeEntity employee){
+        try {
+            //Verify that the employee has a run and isn't null
+            if (employee.getRun() == null || employee.getRun().isEmpty()) {
+                return new ResponseEntity<>("El run no puede estar vacio o ser nulo", HttpStatus.BAD_REQUEST);
+            }
+
+            //Verify that the employee exist in the database
+            if (employeeService.getEmployeeByRun(run).isEmpty()) {
+                return new ResponseEntity<>("El empleado no existe en la base de datos", HttpStatus.NOT_FOUND);
+            }
+
+            EmployeeEntity updatedEmployee = employeeService.updateEmployee(run, employee);
+            return new ResponseEntity<>(updatedEmployee, HttpStatus.OK);
+
+        } catch (Exception ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    //Delete employee and client
+    @PreAuthorize("hasRole('Admin')")
+    @DeleteMapping("/delete/{employeeRun}")
+    public ResponseEntity<String> deleteEmployeeByRun(@PathVariable("employeeRun") String run){
+        boolean deletedEmployee = employeeService.deleteEmployeeByRun(run);
+        return deletedEmployee ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    @PreAuthorize("hasRole('Admin')")
+    @DeleteMapping("/client/delete/{clientRun}")
+    public ResponseEntity<String> deleteClientByRun(@PathVariable("clientRun") String run){
+        boolean deletedClient = clientService.deleteClientByRun(run);
+        return deletedClient ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+}

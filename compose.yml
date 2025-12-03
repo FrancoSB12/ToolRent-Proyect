@@ -1,0 +1,81 @@
+services:
+  # Frontend services
+  frontend1:
+    image: francosb/toolrent-frontend:latest
+    networks:
+      - frontend-network
+
+  frontend2:
+    image: francosb/toolrent-frontend:latest
+    networks:
+      - frontend-network
+
+  frontend3:
+    image: francosb/toolrent-frontend:latest
+    networks:
+      - frontend-network
+
+  # Backend services
+  backend1:
+    image: francosb/toolrent-backend:latest
+    environment:
+      - DB_HOST=host.docker.internal
+      - AUTH_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - backend-network
+
+  backend2:
+    image: francosb/toolrent-backend:latest
+    environment:
+      - DB_HOST=host.docker.internal
+      - AUTH_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - backend-network
+
+  backend3:
+    image: francosb/toolrent-backend:latest
+    environment:
+      - DB_HOST=host.docker.internal
+      - AUTH_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - backend-network
+
+  # Nginx for frontend load balancing
+  nginx-frontend:
+    image: nginx:latest
+    ports:
+      - "8070:80"
+    volumes:
+      - ./nginx-frontend.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend1
+      - frontend2
+      - frontend3
+    networks:
+      - frontend-network
+
+  # Nginx for backend load balancing
+  nginx-backend:
+    image: nginx:latest
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./nginx-backend.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - backend1
+      - backend2
+      - backend3
+    networks:
+      - backend-network
+
+networks:
+  frontend-network:
+    driver: bridge
+  backend-network:
+    driver: bridge
