@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -42,7 +42,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -53,7 +55,9 @@ class LoanServiceTest {
         LoanEntity loan2 = new LoanEntity(
                 24L,
                 LocalDate.of(2024, 7, 21),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 8, 21),
+                LocalTime.of(15, 25, 48),
                 20000,
                 "Finalizado",
                 "Vigente",
@@ -94,7 +98,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -144,7 +150,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -155,7 +163,9 @@ class LoanServiceTest {
         LoanEntity loan2 = new LoanEntity(
                 24L,
                 LocalDate.of(2024, 7, 21),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 8, 21),
+                LocalTime.of(15, 25, 48),
                 20000,
                 "Finalizado",
                 "Vigente",
@@ -182,7 +192,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -193,7 +205,9 @@ class LoanServiceTest {
         LoanEntity loan2 = new LoanEntity(
                 24L,
                 LocalDate.of(2024, 7, 21),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 8, 21),
+                LocalTime.of(15, 25, 48),
                 20000,
                 "Activo",
                 "Vigente",
@@ -219,7 +233,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -230,7 +246,9 @@ class LoanServiceTest {
         LoanEntity loan2 = new LoanEntity(
                 24L,
                 LocalDate.of(2024, 7, 21),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 8, 21),
+                LocalTime.of(15, 25, 48),
                 20000,
                 "Activo",
                 "Vigente",
@@ -343,7 +361,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -446,7 +466,9 @@ class LoanServiceTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -477,7 +499,6 @@ class LoanServiceTest {
         verify(toolTypeService).decreaseAvailableStock(toolType, 1);
         verify(kardexService).createLoanKardex(toolType);
 
-        // Verificar que cliente actualizó préstamos activos
         assertThat(client.getActiveLoans()).isEqualTo(1);
         verify(clientService).saveClient(client);
     }
@@ -555,7 +576,9 @@ class LoanServiceTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -644,7 +667,9 @@ class LoanServiceTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -733,7 +758,9 @@ class LoanServiceTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -822,7 +849,9 @@ class LoanServiceTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -867,7 +896,9 @@ class LoanServiceTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -898,7 +929,9 @@ class LoanServiceTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 null,
                 "Activo",
                 "Vigente",
@@ -909,9 +942,6 @@ class LoanServiceTest {
 
         when(employeeService.getEmployeeByRun(any())).thenReturn(Optional.of(new EmployeeEntity()));
         when(clientService.getClientByRun(any())).thenReturn(Optional.of(new ClientEntity()));
-        // Simulamos que el stock y todo está ok...
-        // (Este test es unitario, si el método es muy largo y no puedes aislar esta línea,
-        //  es mejor confiar en que ya cubriste el flujo principal, pero esto ayuda al 100%).
     }
 
     //returnLoan() tests
@@ -965,7 +995,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2026, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -992,7 +1024,6 @@ class LoanServiceTest {
         assertThat(client.getActiveLoans()).isEqualTo(0);
         verify(clientService).saveClient(client);
 
-        // Verificar préstamo finalizado
         assertThat(result.getStatus()).isEqualTo("Finalizado");
         assertThat(result.getValidity()).isEqualTo("Puntual");
     }
@@ -1047,7 +1078,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 1000,
                 "Activo",
                 "Vigente",
@@ -1118,7 +1151,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 1000,
                 "Activo",
                 "Vigente",
@@ -1159,7 +1194,9 @@ class LoanServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -1199,6 +1236,8 @@ class LoanServiceTest {
                 null,
                 null,
                 null,
+                null,
+                null,
                 1000,
                 null,
                 null,
@@ -1209,7 +1248,9 @@ class LoanServiceTest {
         LoanEntity dbLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 1000,
                 "Activo",
                 "Vigente",
@@ -1236,6 +1277,8 @@ class LoanServiceTest {
                 null,
                 null,
                 null,
+                null,
+                null,
                 -1000,
                 null,
                 null,
@@ -1246,7 +1289,9 @@ class LoanServiceTest {
         LoanEntity dbLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 1000,
                 "Activo",
                 "Vigente",
@@ -1271,7 +1316,9 @@ class LoanServiceTest {
         LoanEntity loanRequest = new LoanEntity(
                 null,
                 null,
+                null,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 null,
                 null,
                 null,
@@ -1282,7 +1329,9 @@ class LoanServiceTest {
         LoanEntity dbLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 1000,
                 "Activo",
                 "Vigente",
@@ -1296,7 +1345,6 @@ class LoanServiceTest {
         loanService.updateValidity(dbLoan.getId(), loanRequest);
 
         // Then
-        // CORRECCIÓN: Usamos ArgumentCaptor para verificar el cambio de estado
         ArgumentCaptor<LoanEntity> captor = ArgumentCaptor.forClass(LoanEntity.class);
         verify(loanRepository).save(captor.capture());
 

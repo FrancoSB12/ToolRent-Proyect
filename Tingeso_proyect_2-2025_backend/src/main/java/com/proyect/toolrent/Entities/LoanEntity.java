@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -24,8 +25,14 @@ public class LoanEntity {
     @Column(name = "loan_date", nullable = false)
     private LocalDate loanDate;
 
+    @Column(name = "loan_time", nullable = false)
+    private LocalTime loanTime;
+
     @Column(name = "return_date", nullable = false)
     private LocalDate returnDate;
+
+    @Column(name = "return_time")
+    private LocalTime returnTime;
 
     @Column(name = "late_return_fee", nullable = false)
     private Integer lateReturnFee;

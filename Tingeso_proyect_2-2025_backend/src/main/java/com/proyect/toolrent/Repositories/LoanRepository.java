@@ -16,6 +16,7 @@ public interface LoanRepository extends JpaRepository<LoanEntity, Long> {
     //Search for a loan by id and return it with all the data including toolItem and toolType
     @Query("SELECT l FROM LoanEntity l " +
             "JOIN FETCH l.client c " +
+            "JOIN FETCH l.employee e " +
             "LEFT JOIN FETCH l.loanTools lt " +
             "LEFT JOIN FETCH lt.toolItem ti " +
             "LEFT JOIN FETCH ti.toolType tt " +

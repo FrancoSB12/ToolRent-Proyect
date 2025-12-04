@@ -1,37 +1,34 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Para capturar el ID de la URL
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import loanService from '../../services/loanService';
-import '../../styles/Register.css'; // Reutilizamos estilos de formularios para coherencia
-import '../../styles/LoanReturn.css';   // Estilos específicos de tarjetas/lista
+import '../../styles/Register.css';
+import '../../styles/LoanReturn.css';
 
-// Opciones de daño (Deben coincidir con tu Enum en Java)
+//Damage options
 const DAMAGE_OPTIONS = [
     { value: 'NO_DANADA', label: 'En Buen Estado' },
     { value: 'EN_EVALUACION', label: 'Dañada (La herramienta irá a evaluación de daños)' }
 ];
 
 const LoanReturnProcess = () => {
-    const { id } = useParams(); // Obtenemos el ID del préstamo desde la ruta /loans/return/:id
+    const { id } = useParams();
     const navigate = useNavigate();
 
     const [loan, setLoan] = useState(null);
-    const [toolConditions, setToolConditions] = useState({}); // Mapa: ID Herramienta -> Nivel de Daño
+    const [toolConditions, setToolConditions] = useState({});
     const [loading, setLoading] = useState(true);
 
-    // 1. Cargar el Préstamo al iniciar
+    //Load the Loan on startup
     useEffect(() => {
-        // Asegúrate de tener este método getById en tu loanService
         loanService.getById(id)
             .then(response => {
                 const data = response.data;
                 setLoan(data);
                 
-                // Pre-llenamos el estado de las herramientas como "NO_DANADA" por defecto
                 const initialConditions = {};
                 if (data.loanTools) {
                     data.loanTools.forEach(lt => {
-                        // Usamos el ID del ToolItem como clave
                         initialConditions[lt.toolItem.id] = 'NO_DANADA';
                     });
                 }
@@ -41,11 +38,11 @@ const LoanReturnProcess = () => {
             .catch(err => {
                 console.error("Error cargando préstamo:", err);
                 toast.error("No se pudo cargar la información del préstamo.");
-                navigate('/loan/return'); // Si falla, volvemos al buscador
+                navigate('/loan/return');
             });
     }, [id, navigate]);
 
-    // Manejar el cambio de estado en los selectores
+    //Handle condition change in selectors
     const handleConditionChange = (toolItemId, newCondition) => {
         setToolConditions(prev => ({
             ...prev,
@@ -53,28 +50,27 @@ const LoanReturnProcess = () => {
         }));
     };
 
-    // 2. Enviar la Devolución
+    //Submit the Return
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!loan) return;
 
-        // Construimos el objeto LoanEntity tal como lo espera el Backend
-        // (El backend iterará sobre loanTools y actualizará el daño)
         const loanToReturn = {
             id: loan.id,
             loanDate: loan.loanDate,
+            loanTime: loan.loanTime,
             returnDate: loan.returnDate,
+            returnTime: new Date().toTimeString().split(' ')[0],
             lateReturnFee: loan.lateReturnFee,
             status: loan.status,
             validity: loan.validity,
             client: loan.client,
+            employee: loan.employee,
             
-            // RECONSTRUIMOS LA LISTA 'loanTools' CON LOS NUEVOS ESTADOS
             loanTools: loan.loanTools.map(lt => ({
-                id: lt.id, // ID de la relación intermedia (LoanXToolItem)
+                id: lt.id,
                 toolItem: {
                     id: lt.toolItem.id,
-                    // Inyectamos el nivel de daño seleccionado
                     damageLevel: toolConditions[lt.toolItem.id] 
                 }
             }))
@@ -83,7 +79,7 @@ const LoanReturnProcess = () => {
         loanService.returnLoan(loan.id, loanToReturn)
             .then(() => {
                 toast.success(`Devolución del préstamo #${loan.id} registrada con éxito.`);
-                navigate('/loan/return'); // Volver al buscador
+                navigate('/loan/return');
             })
             .catch(err => {
                 console.error(err);
@@ -98,7 +94,7 @@ const LoanReturnProcess = () => {
         <main className="full-page-content">
             <h2 className="form-title">Procesar Devolución #{loan.id}</h2>
 
-            {/* Información del Préstamo */}
+            {/* Loan information */}
             <div style={{ textAlign: 'center', marginBottom: '2rem', padding: '1rem', background: '#fff', borderRadius: '8px', border: '1px solid #eee' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                     <div>
@@ -121,7 +117,7 @@ const LoanReturnProcess = () => {
                     Evaluar Estado de las Herramientas
                 </h3>
 
-                {/* LISTA DE HERRAMIENTAS A EVALUAR */}
+                {/* Tool list to evaluate */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {loan.loanTools?.map(lt => (
                         <div key={lt.toolItem.id} style={{ 
@@ -136,7 +132,7 @@ const LoanReturnProcess = () => {
                             gap: '1rem'
                         }}>
                             
-                            {/* Información de la Herramienta */}
+                            {/* Tool information */}
                             <div style={{ flex: 1, minWidth: '200px' }}>
                                 <strong style={{ fontSize: '1.1rem', display: 'block' }}>
                                     {lt.toolItem.toolType?.name || "Herramienta"}
@@ -150,7 +146,7 @@ const LoanReturnProcess = () => {
                                 </span>
                             </div>
 
-                            {/* Selector de Estado */}
+                            {/* Status Selector */}
                             <div style={{ flex: 1, minWidth: '250px' }}>
                                 <label style={{ fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>
                                     Condición de recepción:
@@ -179,7 +175,7 @@ const LoanReturnProcess = () => {
                     ))}
                 </div>
 
-                {/* Botones de Acción */}
+                {/* Action Buttons */}
                 <div className="form-actions" style={{ marginTop: '2rem', flexDirection: 'row', gap: '1rem', justifyContent: 'center' }}>
                     
                     <button 

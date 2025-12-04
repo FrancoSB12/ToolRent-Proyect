@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -258,6 +259,7 @@ public class LoanService {
             dbLoanEnt.setValidity("Puntual");
         }
 
+        dbLoanEnt.setReturnTime(LocalTime.now());
         dbLoanEnt.setStatus("Finalizado");
         return loanRepository.save(dbLoanEnt);
     }

@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
@@ -123,7 +124,9 @@ public class LoanControllerTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(17, 4, 12),
                 10000,
                 "Activo",
                 "Vigente",
@@ -182,7 +185,9 @@ public class LoanControllerTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(18, 1, 59),
                 10000,
                 "Activo",
                 "Vigente",
@@ -226,7 +231,9 @@ public class LoanControllerTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(11, 45, 00),
                 10000,
                 "Activo",
                 "Vigente",
@@ -272,7 +279,9 @@ public class LoanControllerTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10).minusDays(3),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -322,7 +331,9 @@ public class LoanControllerTest {
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24).minusDays(20),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -357,7 +368,9 @@ public class LoanControllerTest {
         LoanEntity loan1 = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -368,7 +381,9 @@ public class LoanControllerTest {
         LoanEntity loan2 = new LoanEntity(
                 24L,
                 LocalDate.of(2024, 7, 21),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 8, 21),
+                LocalTime.of(15, 25, 48),
                 20000,
                 "Finalizado",
                 "Vigente",
@@ -408,7 +423,9 @@ public class LoanControllerTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -450,7 +467,9 @@ public class LoanControllerTest {
         LoanEntity loan1 = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -461,7 +480,9 @@ public class LoanControllerTest {
         LoanEntity loan2 = new LoanEntity(
                 52L,
                 LocalDate.of(2024, 3, 17),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 3, 31),
+                LocalTime.of(15, 25, 48),
                 23000,
                 "Finalizado",
                 "Vigente",
@@ -472,7 +493,9 @@ public class LoanControllerTest {
         LoanEntity loan3 = new LoanEntity(
                 104L,
                 LocalDate.of(2025, 1, 5),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 2, 5),
+                LocalTime.of(15, 25, 48),
                 23000,
                 "Finalizado",
                 "Vigente",
@@ -537,7 +560,9 @@ public class LoanControllerTest {
         LoanEntity loan1 = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -548,7 +573,9 @@ public class LoanControllerTest {
         LoanEntity loan2 = new LoanEntity(
                 52L,
                 LocalDate.of(2024, 3, 17),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 3, 31),
+                LocalTime.of(15, 25, 48),
                 23000,
                 "Finalizado",
                 "Vigente",
@@ -559,7 +586,9 @@ public class LoanControllerTest {
         LoanEntity loan3 = new LoanEntity(
                 104L,
                 LocalDate.of(2025, 1, 5),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 2, 5),
+                LocalTime.of(15, 25, 48),
                 23000,
                 "Finalizado",
                 "Vigente",
@@ -602,7 +631,9 @@ public class LoanControllerTest {
         LoanEntity loan1 = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2026, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -613,7 +644,9 @@ public class LoanControllerTest {
         LoanEntity loan2 = new LoanEntity(
                 52L,
                 LocalDate.of(2024, 3, 17),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 3, 31),
+                LocalTime.of(15, 25, 48),
                 23000,
                 "Finalizado",
                 "Atrasado",
@@ -624,7 +657,9 @@ public class LoanControllerTest {
         LoanEntity loan3 = new LoanEntity(
                 104L,
                 LocalDate.of(2025, 1, 5),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 2, 5),
+                LocalTime.of(15, 25, 48),
                 23000,
                 "Finalizado",
                 "Atrasado",
@@ -726,7 +761,9 @@ public class LoanControllerTest {
         LoanEntity loan1 = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -737,7 +774,9 @@ public class LoanControllerTest {
         LoanEntity loan2 = new LoanEntity(
                 52L,
                 LocalDate.of(2024, 3, 17),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 3, 31),
+                LocalTime.of(15, 25, 48),
                 23000,
                 "Finalizado",
                 "Vigente",
@@ -748,7 +787,9 @@ public class LoanControllerTest {
         LoanEntity loan3 = new LoanEntity(
                 104L,
                 LocalDate.of(2025, 1, 5),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 2, 5),
+                LocalTime.of(15, 25, 48),
                 23000,
                 "Finalizado",
                 "Atrasado",
@@ -849,7 +890,9 @@ public class LoanControllerTest {
         LoanEntity loan1 = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -860,7 +903,9 @@ public class LoanControllerTest {
         LoanEntity loan2 = new LoanEntity(
                 52L,
                 LocalDate.of(2024, 3, 17),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2024, 3, 31),
+                LocalTime.of(15, 25, 48),
                 23000,
                 "Finalizado",
                 "Vigente",
@@ -932,7 +977,9 @@ public class LoanControllerTest {
         LoanEntity loanToReturn = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -943,7 +990,9 @@ public class LoanControllerTest {
         LoanEntity returnedLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Finalizado",
                 "Vigente",
@@ -975,7 +1024,9 @@ public class LoanControllerTest {
         LoanEntity nonExistingLoan = new LoanEntity(
                 215L,
                 LocalDate.of(2025, 7, 17),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 7, 29),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -1012,7 +1063,9 @@ public class LoanControllerTest {
         LoanEntity loanToReturn = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -1023,7 +1076,9 @@ public class LoanControllerTest {
         LoanEntity returnedLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Finalizado",
                 "Vigente",
@@ -1063,7 +1118,9 @@ public class LoanControllerTest {
         LoanEntity loanToReturn = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",
@@ -1074,7 +1131,9 @@ public class LoanControllerTest {
         LoanEntity alreadyReturnedLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Finalizado",
                 "Vigente",
@@ -1104,7 +1163,9 @@ public class LoanControllerTest {
         LoanEntity updatedLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Finalizado",
                 "Vigente",
@@ -1131,7 +1192,9 @@ public class LoanControllerTest {
         LoanEntity updatedLoan = new LoanEntity(
                 null,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Finalizado",
                 "Vigente",
@@ -1157,7 +1220,9 @@ public class LoanControllerTest {
         LoanEntity updatedLoan = new LoanEntity(
                 16L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Finalizado",
                 "Vigente",
@@ -1218,7 +1283,9 @@ public class LoanControllerTest {
         LoanEntity loanToUpdate = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 15000,
                 "Activo",
                 "Vigente",

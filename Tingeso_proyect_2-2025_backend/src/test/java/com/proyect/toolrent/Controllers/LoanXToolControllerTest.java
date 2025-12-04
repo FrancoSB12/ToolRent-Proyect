@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
@@ -59,7 +60,9 @@ public class LoanXToolControllerTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -101,7 +104,9 @@ public class LoanXToolControllerTest {
         when(loanService.getLoanById(loanId)).thenReturn(Optional.of(new LoanEntity(
                 loanId,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",

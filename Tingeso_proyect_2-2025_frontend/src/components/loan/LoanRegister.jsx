@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useKeycloak } from '@react-keycloak/web';
 import loanService from '../../services/loanService';
 import toolItemService from '../../services/toolItemService';
 import toolTypeService from '../../services/toolTypeService';
@@ -28,6 +29,7 @@ const formatRun = (run) => {
 
 const LoanRegister = () => {
     const navigate = useNavigate();
+    const { keycloak } = useKeycloak();
 
     const [clientRun, setClientRun] = useState('');
     const [returnDate, setReturnDate] = useState('');
@@ -93,10 +95,19 @@ const LoanRegister = () => {
             return;
         }
 
+        const employeeRun = keycloak.tokenParsed?.preferred_username;
+
+        if (!employeeRun) {
+            toast.error("No se pudo identificar al empleado. Inicie sesión nuevamente.");
+            return;
+        }
+
         const loanEntity = {
             client: { run: clientRun },
+            employee: { run: employeeRun },
             returnDate: returnDate,
             loanDate: new Date().toISOString().split('T')[0],
+            loanTime: new Date().toTimeString().split(' ')[0],
             loanTools: addedTools.map(tool => ({ toolItem: { id: tool.id } }))
         };
 

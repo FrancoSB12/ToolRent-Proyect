@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import toolItemService from '../../services/toolItemService.js';
-import '../../styles/Register.css'; // Reutilizamos estilos
+import '../../styles/Register.css';
 
-// Opciones de evaluación (Tus enums)
+//Damage evaluation options
 const DAMAGE_OPTIONS = [
   { value: 'NO_DANADA', label: 'Sin Daños (Falsa Alarma)' },
   { value: 'LEVEMENTE_DANADA', label: 'Daño Leve (Reparable)' },
@@ -16,16 +16,12 @@ const DAMAGE_OPTIONS = [
 const ToolItemEvaluateDamage = () => {
   const navigate = useNavigate();
 
-  // Estados
   const [serialNumber, setSerialNumber] = useState('');
-  const [tool, setTool] = useState(null); // La herramienta encontrada
-  
-  // 1. ESTADO INICIAL VACÍO (Importante para obligar la selección)
+  const [tool, setTool] = useState(null);
   const [damageLevel, setDamageLevel] = useState(''); 
-  
   const [loading, setLoading] = useState(false);
 
-  // Paso 1: Buscar la herramienta por serie
+  //Search the tool item by serial number
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!serialNumber) return;
@@ -40,9 +36,6 @@ const ToolItemEvaluateDamage = () => {
       }
       
       setTool(foundTool);
-      
-      // 2. NO PRE-LLENAMOS EL DAÑO. 
-      // Dejamos damageLevel tal cual (vacío) para que el usuario decida.
       setDamageLevel(''); 
 
     } catch (err) {
@@ -55,32 +48,31 @@ const ToolItemEvaluateDamage = () => {
     }
   };
 
-  // Paso 2: Enviar la evaluación
+  //Submit the evaluation
   const handleSubmitEvaluation = async () => {
     if (!tool || !damageLevel) {
-        toast.warning("Debe seleccionar un resultado de la evaluación.");
-        return;
+      toast.warning("Debe seleccionar un resultado de la evaluación.");
+      return;
     }
 
     try {
-      // Preparamos el objeto solo con el nuevo nivel de daño
       const evaluationData = {
         id: tool.id,
         damageLevel: damageLevel
-        // El backend se encarga de buscar el préstamo y el cliente
+        // The backend is responsible for finding the loan and the client
       };
 
       await toolItemService.evaluateItemDamage(tool.id, evaluationData);
 
       toast.success(`Evaluación registrada. Se han aplicado los cargos correspondientes.`);
-      navigate('/tools'); // Volver al inventario
+      navigate('/tools');
 
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data) {
-          toast.error(`Error: ${err.response.data}`);
+        toast.error(`Error: ${err.response.data}`);
       } else {
-          toast.error("Error al procesar la evaluación.");
+        toast.error("Error al procesar la evaluación.");
       }
     }
   };
@@ -89,111 +81,109 @@ const ToolItemEvaluateDamage = () => {
     <main className="full-page-content">
       <h2 className="form-title">Evaluar Daño y Cobros</h2>
 
-      {/* --- BUSCADOR --- */}
+      {/* --- Search bar --- */}
       <div style={{ maxWidth: '600px', margin: '0 auto 2rem auto' }}>
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: '1rem' }}>
-            <div className="form-group" style={{ flexGrow: 1, marginBottom: 0 }}>
-                <input 
-                    type="text" 
-                    value={serialNumber} 
-                    onChange={(e) => setSerialNumber(e.target.value)} 
-                    placeholder="Escanear Número de Serie *" 
-                    required 
-                />
-            </div>
-            <button type="submit" className="register-submit-btn" style={{ width: 'auto', padding: '0 2rem' }} disabled={loading}>
-                {loading ? 'Buscando...' : 'Buscar'}
-            </button>
+          <div className="form-group" style={{ flexGrow: 1, marginBottom: 0 }}>
+            <input 
+              type="text" 
+              value={serialNumber} 
+              onChange={(e) => setSerialNumber(e.target.value)} 
+              placeholder="Escanear Número de Serie *" 
+              required 
+            />
+          </div>
+          <button type="submit" className="register-submit-btn" style={{ width: 'auto', padding: '0 2rem' }} disabled={loading}>
+            {loading ? 'Buscando...' : 'Buscar'}
+          </button>
         </form>
       </div>
 
-      {/* --- FORMULARIO DE EVALUACIÓN (Solo si se encontró la herramienta) --- */}
+      {/* --- Evaluation form (Only if the tool was found) --- */}
       {tool && (
         <div className="register-form" style={{ maxWidth: '700px', margin: '0 auto', display: 'block' }}>
             
-            {/* Datos de la herramienta */}
-            <div style={{ background: '#f4f4f4', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem' }}>
-                <h3 style={{ marginTop: 0, color: '#333' }}>{tool.toolType?.name}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.95rem' }}>
-                    <div><strong>Modelo:</strong> {tool.toolType?.model}</div>
-                    <div><strong>Serie:</strong> {tool.serialNumber}</div>
-                    <div><strong>Estado Actual:</strong> {tool.status}</div>
-                    <div><strong>Daño Actual:</strong> {tool.damageLevel}</div>
-                    <div><strong>Valor Reposición:</strong> ${tool.toolType?.replacementValue}</div>
-                    <div><strong>Costo Reparación:</strong> ${tool.toolType?.damageFee}</div>
-                </div>
+          {/* Tool data */}
+          <div style={{ background: '#f4f4f4', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem' }}>
+            <h3 style={{ marginTop: 0, color: '#333' }}>{tool.toolType?.name}</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.95rem' }}>
+              <div><strong>Modelo:</strong> {tool.toolType?.model}</div>
+              <div><strong>Serie:</strong> {tool.serialNumber}</div>
+              <div><strong>Estado Actual:</strong> {tool.status}</div>
+              <div><strong>Daño Actual:</strong> {tool.damageLevel}</div>
+              <div><strong>Valor Reposición:</strong> ${tool.toolType?.replacementValue}</div>
+              <div><strong>Costo Reparación:</strong> ${tool.toolType?.damageFee}</div>
             </div>
+          </div>
 
-            {/* Selector de Nuevo Estado */}
-            <div className="form-group">
-                <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>Resultado de la Evaluación:</label>
+          {/* New Status Selector */}
+          <div className="form-group">
+            <label style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'block' }}>Resultado de la Evaluación:</label>
                 
-                <select 
-                    value={damageLevel} 
-                    onChange={(e) => setDamageLevel(e.target.value)}
-                    required
-                    style={{ 
-                        height: '56px', 
-                        width: '100%', 
-                        padding: '0 1rem', 
-                        borderRadius: '8px', 
-                        border: '1px solid #ccc',
-                        // Lógica de color: Gris si es placeholder, Negro/Rojo si ya eligió
-                        color: damageLevel === '' ? '#888' : (damageLevel === 'IRREPARABLE' ? 'red' : (damageLevel !== 'NO_DANADA' ? '#d9534f' : '#333')),
-                        fontWeight: damageLevel && damageLevel !== 'NO_DANADA' ? 'bold' : 'normal'
-                    }}
-                >
-                    {/* 3. EL PLACEHOLDER REAL (Oculto al abrir, visible al inicio) */}
-                    <option value="" disabled hidden>⬇ Seleccione el resultado de la evaluación *</option>
-                    
-                    {DAMAGE_OPTIONS.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                </select>
+            <select 
+              value={damageLevel} 
+              onChange={(e) => setDamageLevel(e.target.value)}
+              required
+              style={{ 
+                height: '56px', 
+                width: '100%', 
+                padding: '0 1rem', 
+                borderRadius: '8px', 
+                border: '1px solid #ccc',
+                color: damageLevel === '' ? '#888' : (damageLevel === 'IRREPARABLE' ? 'red' : (damageLevel !== 'NO_DANADA' ? '#d9534f' : '#333')),
+                fontWeight: damageLevel && damageLevel !== 'NO_DANADA' ? 'bold' : 'normal'
+              }}
+            >
+              <option value="" disabled hidden>⬇ Seleccione el resultado de la evaluación *</option>
+                      
+              {DAMAGE_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Informative message about the action */}
+          {damageLevel !== '' && (
+            <div style={{ margin: '1.5rem 0', padding: '1rem', borderLeft: '4px solid #007bff', background: '#e7f1ff', fontSize: '0.9rem' }}>
+              <strong>Acción del Sistema:</strong>
+              {damageLevel === 'IRREPARABLE' ? (
+                <ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
+                  <li>La herramienta se dará de <strong>BAJA</strong>.</li>
+                  <li>Se cobrará el <strong>Valor de Reposición (${tool.toolType?.replacementValue})</strong> al último cliente.</li>
+                </ul>
+              ) : damageLevel === 'NO_DANADA' ? (
+                <ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
+                  <li>La herramienta volverá a estar <strong>DISPONIBLE</strong>.</li>
+                  <li>No se aplicarán cargos extra.</li>
+                  </ul>
+              ) : (
+                <ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
+                  <li>La herramienta quedará <strong>EN REPARACIÓN</strong>.</li>
+                  <li>Se cobrará la <strong>Tarifa de Daño (${tool.toolType?.damageFee})</strong> al último cliente.</li>
+                </ul>
+              )}
             </div>
+          )}
 
-            {/* Mensaje informativo sobre la acción */}
-            {damageLevel !== '' && (
-                <div style={{ margin: '1.5rem 0', padding: '1rem', borderLeft: '4px solid #007bff', background: '#e7f1ff', fontSize: '0.9rem' }}>
-                    <strong>Acción del Sistema:</strong>
-                    {damageLevel === 'IRREPARABLE' ? (
-                        <ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
-                            <li>La herramienta se dará de <strong>BAJA</strong>.</li>
-                            <li>Se cobrará el <strong>Valor de Reposición (${tool.toolType?.replacementValue})</strong> al último cliente.</li>
-                        </ul>
-                    ) : damageLevel === 'NO_DANADA' ? (
-                        <ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
-                            <li>La herramienta volverá a estar <strong>DISPONIBLE</strong>.</li>
-                            <li>No se aplicarán cargos extra.</li>
-                        </ul>
-                    ) : (
-                        <ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
-                            <li>La herramienta quedará <strong>EN REPARACIÓN</strong>.</li>
-                            <li>Se cobrará la <strong>Tarifa de Daño (${tool.toolType?.damageFee})</strong> al último cliente.</li>
-                        </ul>
-                    )}
-                </div>
-            )}
-
-            {/* Botones */}
-            <div className="form-actions">
-                <button 
-                    type="button" 
-                    onClick={handleSubmitEvaluation}
-                    className="register-submit-btn"
-                    style={{ backgroundColor: '#d9534f' }} // Rojo para indicar cobro
-                >
-                    Confirmar Evaluación y Cobro
-                </button>
+          {/* Buttons */}
+          <div className="form-actions">
+            <button 
+              type="button" 
+              onClick={handleSubmitEvaluation}
+              className="register-submit-btn"
+              style={{ backgroundColor: '#d9534f' }} // Rojo para indicar cobro
+            >
+              Confirmar Evaluación y Cobro
+            </button>
                 
-                <button 
-                    type="button" 
-                    onClick={() => { setTool(null); setSerialNumber(''); setDamageLevel(''); }}
-                    style={{ background: 'none', border: 'none', marginTop: '1rem', cursor: 'pointer', textDecoration: 'underline', color: '#666' }}
-                >
-                    Cancelar / Nueva Búsqueda
-                </button>
-            </div>
+            <button 
+              type="button" 
+              onClick={() => { setTool(null); setSerialNumber(''); setDamageLevel(''); }}
+              style={{ background: 'none', border: 'none', marginTop: '1rem', cursor: 'pointer', textDecoration: 'underline', color: '#666' }}
+            >
+              Cancelar / Nueva Búsqueda
+            </button>
+          </div>
         </div>
       )}
     </main>

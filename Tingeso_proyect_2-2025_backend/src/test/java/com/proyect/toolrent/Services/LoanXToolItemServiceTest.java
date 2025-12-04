@@ -7,6 +7,7 @@ import com.proyect.toolrent.Repositories.LoanXToolItemRepository;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +41,9 @@ class LoanXToolItemServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -103,7 +106,9 @@ class LoanXToolItemServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -195,7 +200,9 @@ class LoanXToolItemServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",
@@ -336,7 +343,9 @@ class LoanXToolItemServiceTest {
         LoanEntity loan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
+                LocalTime.of(15, 25, 48),
                 LocalDate.of(2025, 5, 24),
+                LocalTime.of(15, 25, 48),
                 10000,
                 "Activo",
                 "Vigente",

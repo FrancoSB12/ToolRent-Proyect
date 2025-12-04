@@ -1,12 +1,16 @@
 services:
   jenkins:
-    image: jenkins/jenkins:lts-jdk17
+    build: .
+    image: my-custom-jenkins:latest
     container_name: jenkins-server
     user: root
     privileged: true
     ports:
       - 8080:8080
       - 50000:50000
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     volumes:
       - jenkins_home:/var/jenkins_home
       - //var/run/docker.sock:/var/run/docker.sock
