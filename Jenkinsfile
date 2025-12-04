@@ -22,6 +22,7 @@ pipeline {
         stage('Build & Push Backend') {
             steps {
                 cleanWs()
+                checkout scm
                 echo '🐳 Construyendo imagen de Backend...'
                 dir('Tingeso_proyect_2-2025_backend') {
                     sh './mvnw package -DskipTests'
@@ -39,6 +40,7 @@ pipeline {
         stage('Build & Push Frontend') {
             steps {
                 cleanWs()
+                checkout scm
                 echo '⚛️ Construyendo imagen de Frontend...'
                 dir('Tingeso_proyect_2-2025_frontend') {
                     script {
