@@ -14,6 +14,7 @@ import java.util.*;
 
 @Service
 public class LoanService {
+    private final EmployeeService employeeService;
     LoanRepository loanRepository;
     ClientService clientService;
     LoanXToolItemService loanXToolItemService;
@@ -24,7 +25,7 @@ public class LoanService {
     SystemConfigurationService sysConfigService;
 
     @Autowired
-    public LoanService(LoanRepository loanRepository, ClientService clientService, LoanXToolItemService loanXToolItemService, ToolTypeService toolTypeService, ToolItemService toolItemService, KardexService kardexService, ValidationService validationService, SystemConfigurationService sysConfigService) {
+    public LoanService(LoanRepository loanRepository, ClientService clientService, LoanXToolItemService loanXToolItemService, ToolTypeService toolTypeService, ToolItemService toolItemService, KardexService kardexService, ValidationService validationService, SystemConfigurationService sysConfigService, EmployeeService employeeService) {
         this.loanRepository = loanRepository;
         this.clientService = clientService;
         this.loanXToolItemService = loanXToolItemService;
@@ -33,6 +34,7 @@ public class LoanService {
         this.kardexService = kardexService;
         this.validationService = validationService;
         this.sysConfigService = sysConfigService;
+        this.employeeService = employeeService;
     }
 
     public List<LoanEntity> getAllLoans(){
@@ -93,7 +95,11 @@ public class LoanService {
     }
 
     @Transactional
-    public LoanEntity createLoan(LoanEntity loan){
+    public LoanEntity createLoan(LoanEntity loan, String employeeRun){
+        //The employee is searched in the database
+        Optional<EmployeeEntity> dbEmployee = employeeService.getEmployeeByRun(employeeRun);
+        EmployeeEntity dbEmployeeEnt = dbEmployee.get();
+
         //The client is searched in the database
         Optional<ClientEntity> dbClient = clientService.getClientByRun(loan.getClient().getRun());
         ClientEntity dbClientEnt = dbClient.get();
@@ -158,6 +164,7 @@ public class LoanService {
 
         //If all tools have stock and the client doesn't have or hasn't exceeded the tool limit then save the loan
         loan.setClient(dbClientEnt);
+        loan.setEmployee(dbEmployeeEnt);
         LoanEntity savedLoan = loanRepository.save(loan);
 
         //Create and save the associated kardex for each tool, reduce the tool stock and save the relationships
@@ -276,7 +283,7 @@ public class LoanService {
         Optional<LoanEntity> dbLoan = loanRepository.findById(id);
         LoanEntity dbLoanEnt = dbLoan.get();
 
-        if(loan.getLoanDate().isAfter(LocalDate.now())){
+        if(loan.getReturnDate().isBefore(LocalDate.now())){
             dbLoanEnt.setValidity("Atrasado");
             loanRepository.save(dbLoanEnt);
         }

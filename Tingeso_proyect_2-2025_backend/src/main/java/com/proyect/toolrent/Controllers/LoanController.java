@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class LoanController {
     //Create loan
     @PreAuthorize("hasAnyRole('Employee','Admin')")
     @PostMapping
-    public ResponseEntity<?> createLoan(@RequestBody LoanEntity loan){
+    public ResponseEntity<?> createLoan(@RequestBody LoanEntity loan, Principal principal){
         //It's verified that the loan doesn't exist
         if(loan.getId() != null && loanService.exists(loan.getId())){
             return new ResponseEntity<>("El prestamo ya existe en la base de datos", HttpStatus.CONFLICT);
@@ -57,8 +58,10 @@ public class LoanController {
             return new ResponseEntity<>("Fecha de devolución incorrecta", HttpStatus.BAD_REQUEST);
         }
 
+        String currentEmployeeRun = principal.getName();
+
         try {
-            LoanEntity newLoan = loanService.createLoan(loan);
+            LoanEntity newLoan = loanService.createLoan(loan, currentEmployeeRun);
             return new ResponseEntity<>(newLoan, HttpStatus.CREATED);
         } catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);

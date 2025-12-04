@@ -27,10 +27,6 @@ public class KardexService {
         return kardexRepository.findAll();
     }
 
-    public Optional<KardexEntity> getKardexById(Long id){
-        return kardexRepository.findById(id);
-    }
-
     public Optional<List<KardexEntity>> getKardexByToolTypeName(String toolTypeName){
         return kardexRepository.findByToolType_Name(toolTypeName);
     }

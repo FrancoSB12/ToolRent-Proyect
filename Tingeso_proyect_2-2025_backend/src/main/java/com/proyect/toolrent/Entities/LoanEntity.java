@@ -39,8 +39,12 @@ public class LoanEntity {
     private String validity = "Vigente";
 
     @ManyToOne
-    @JoinColumn(name = "client_run", referencedColumnName = "run")
+    @JoinColumn(name = "client_run", referencedColumnName = "run", nullable = false)
     private ClientEntity client;
+
+    @ManyToOne
+    @JoinColumn(name = "employee_run", referencedColumnName = "run", nullable = false)
+    private EmployeeEntity employee;
 
     @OneToMany(mappedBy = "loan")
     private List<LoanXToolItemEntity> loanTools;
@@ -54,6 +58,6 @@ public class LoanEntity {
             return "Atrasado";
         }
 
-        return "Vigente";
+        return "Puntual";
     }
 }

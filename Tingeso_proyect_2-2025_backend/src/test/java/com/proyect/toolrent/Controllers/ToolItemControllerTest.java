@@ -1,11 +1,10 @@
 package com.proyect.toolrent.Controllers;
 
-import com.proyect.toolrent.DTO.DamageEvaluationRequest;
 import com.proyect.toolrent.Entities.*;
 import com.proyect.toolrent.Enums.ToolDamageLevel;
 import com.proyect.toolrent.Enums.ToolStatus;
-import com.proyect.toolrent.Services.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proyect.toolrent.Services.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
@@ -591,16 +589,6 @@ public class ToolItemControllerTest {
     public void evaluateDamage_ShouldReturnEvaluatedToolItem() throws Exception {
         ToolDamageLevel newDamageLevel = ToolDamageLevel.LEVEMENTE_DANADA;
 
-        ClientEntity client = new ClientEntity(
-                "20.372.403-9",
-                "Dante",
-                "Vex",
-                "dante.vex@usach.cl",
-                "+56956982015",
-                "Activo",
-                0,
-                0);
-
         ToolTypeEntity toolType = new ToolTypeEntity(
                 1L,
                 "Destornillador Phillips 2*150mm",
@@ -619,47 +607,15 @@ public class ToolItemControllerTest {
                 newDamageLevel,
                 toolType);
 
-        LoanXToolItemEntity loanTools = new LoanXToolItemEntity(
-                2L,
-                null,
-                toolItem);
-
-        LoanXToolItemEntity loanTools2 = new LoanXToolItemEntity(
-                3L,
-                null,
-                toolItem);
-
-        List<LoanXToolItemEntity> loanToolsList_Tool = Arrays.asList(loanTools, loanTools2);
-
-        LoanEntity loan = new LoanEntity(
-                13L,
-                LocalDate.of(2025, 5, 10),
-                LocalDate.of(2025, 5, 24),
-                15000,
-                "Activo",
-                "Vigente",
-                client,
-                loanToolsList_Tool);
-
         //Simulate that the tool exist
         when(toolItemService.getToolItemById(toolItem.getId())).thenReturn(Optional.of(toolItem));
-
-        //Simulate that the loan exist
-        when(loanService.exists(loan.getId())).thenReturn(true);
-
-        //Simulate that the client exist
-        when(clientService.exists(client.getRun())).thenReturn(true);
 
         //Simulate validation
         when(validationService.isValidDamageLevel(newDamageLevel.toString())).thenReturn(true);
 
         given(toolItemService.evaluateDamage(eq(toolItem.getId()), Mockito.any(ToolItemEntity.class))).willReturn(toolItem);
 
-        DamageEvaluationRequest damageEvaluationRequest = new DamageEvaluationRequest();
-        damageEvaluationRequest.setTool(toolItem);
-        damageEvaluationRequest.setLoan(loan);
-
-        String requestJson = objectMapper.writeValueAsString(damageEvaluationRequest);
+        String requestJson = objectMapper.writeValueAsString(toolItem);
 
         mockMvc.perform(put("/api/tool-items/evaluate-damage/{toolId}", toolItem.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -669,20 +625,10 @@ public class ToolItemControllerTest {
 
     }
 
-    //Exceptions (tool or loan doesn't exist or bad requests)
+    //Exceptions (tool doesn't exist or bad request)
     @Test
     public void evaluateDamage_ToolItemDoesntExist_ShouldReturnNotFound() throws Exception {
         ToolDamageLevel newDamageLevel = ToolDamageLevel.LEVEMENTE_DANADA;
-
-        ClientEntity dummyClient = new ClientEntity(
-                "20.372.403-9",
-                "Dante",
-                "Vex",
-                "dante.vex@usach.cl",
-                "+56956982015",
-                "Loco",
-                0,
-                0);
 
         ToolItemEntity nonExistingToolItem = new ToolItemEntity(
                 1L,
@@ -691,33 +637,13 @@ public class ToolItemControllerTest {
                 newDamageLevel,
                 null);
 
-        LoanEntity dummyLoan = new LoanEntity(
-                13L,
-                LocalDate.of(2025, 5, 10),
-                LocalDate.of(2025, 5, 24),
-                10000,
-                "Activo",
-                "Vigente",
-                dummyClient,
-                null);
-
         //Simulate that the tool doesn't exist
         when(toolItemService.getToolItemById(nonExistingToolItem.getId())).thenReturn(Optional.empty());
-
-        //Simulate that the loan exist
-        when(loanService.exists(dummyLoan.getId())).thenReturn(true);
-
-        //Simulate that the client exist
-        when(clientService.exists(dummyClient.getRun())).thenReturn(true);
 
         //Simulate validation
         when(validationService.isValidDamageLevel(newDamageLevel.toString())).thenReturn(true);
 
-        DamageEvaluationRequest damageEvaluationRequest = new DamageEvaluationRequest();
-        damageEvaluationRequest.setTool(nonExistingToolItem);
-        damageEvaluationRequest.setLoan(dummyLoan);
-
-        String requestJson = objectMapper.writeValueAsString(damageEvaluationRequest);
+        String requestJson = objectMapper.writeValueAsString(nonExistingToolItem);
 
         mockMvc.perform(put("/api/tool-items/evaluate-damage/{toolId}", nonExistingToolItem.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -727,117 +653,30 @@ public class ToolItemControllerTest {
     }
 
     @Test
-    public void evaluateDamage_LoanDoesntExist_ShouldReturnNotFound() throws Exception {
+    public void evaluateDamage_InvalidToolDamageLevel_ShouldReturnBadRequest() throws Exception {
         ToolDamageLevel newDamageLevel = ToolDamageLevel.LEVEMENTE_DANADA;
 
-        ClientEntity dummyClient = new ClientEntity(
-                "20.372.403-9",
-                "Dante",
-                "Vex",
-                "dante.vex@usach.cl",
-                "+56956982015",
-                "Loco",
-                0,
-                0);
-
-        ToolItemEntity dummyToolItem = new ToolItemEntity(
+        ToolItemEntity toolItem = new ToolItemEntity(
                 1L,
                 "458754621",
                 ToolStatus.DISPONIBLE,
                 newDamageLevel,
                 null);
 
-        LoanEntity nonExistingLoan = new LoanEntity(
-                13L,
-                LocalDate.of(2025, 5, 10),
-                LocalDate.of(2025, 5, 24),
-                10000,
-                "Activo",
-                "Vigente",
-                dummyClient,
-                null);
-
         //Simulate that the tool exist
-        when(toolItemService.getToolItemById(dummyToolItem.getId())).thenReturn(Optional.of(dummyToolItem));
-
-        //Simulate that the loan doesn't exist
-        when(loanService.exists(nonExistingLoan.getId())).thenReturn(false);
-
-        //Simulate that the client exist
-        when(clientService.exists(dummyClient.getRun())).thenReturn(true);
+        when(toolItemService.getToolItemById(toolItem.getId())).thenReturn(Optional.of(toolItem));
 
         //Simulate validation
-        when(validationService.isValidDamageLevel(newDamageLevel.toString())).thenReturn(true);
+        when(validationService.isValidDamageLevel(newDamageLevel.toString())).thenReturn(false);
 
-        DamageEvaluationRequest damageEvaluationRequest = new DamageEvaluationRequest();
-        damageEvaluationRequest.setTool(dummyToolItem);
-        damageEvaluationRequest.setLoan(nonExistingLoan);
+        String requestJson = objectMapper.writeValueAsString(toolItem);
 
-        String requestJson = objectMapper.writeValueAsString(damageEvaluationRequest);
-
-        mockMvc.perform(put("/api/tool-items/evaluate-damage/{toolId}", dummyToolItem.getId())
+        mockMvc.perform(put("/api/tool-items/evaluate-damage/{toolId}", toolItem.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("El prestamo no existe en la base de datos"));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Nivel de daño de la herramienta inválido"));
     }
-
-    @Test
-    public void evaluateDamage_ClientDoesntExist_ShouldReturnNotFound() throws Exception {
-        ToolDamageLevel newDamageLevel = ToolDamageLevel.LEVEMENTE_DANADA;
-
-        ClientEntity nonExistingClient = new ClientEntity(
-                "20.372.403-9",
-                "Dante",
-                "Vex",
-                "dante.vex@usach.cl",
-                "+56956982015",
-                "Loco",
-                0,
-                0);
-
-        ToolItemEntity dummyToolItem = new ToolItemEntity(
-                1L,
-                "458754621",
-                ToolStatus.DISPONIBLE,
-                newDamageLevel,
-                null);
-
-        LoanEntity dummyLoan = new LoanEntity(
-                13L,
-                LocalDate.of(2025, 5, 10),
-                LocalDate.of(2025, 5, 24),
-                10000,
-                "Activo",
-                "Vigente",
-                nonExistingClient,
-                null);
-
-        //Simulate that the tool exist
-        when(toolItemService.getToolItemById(dummyToolItem.getId())).thenReturn(Optional.of(dummyToolItem));
-
-        //Simulate that the loan doesn't exist
-        when(loanService.exists(dummyLoan.getId())).thenReturn(true);
-
-        //Simulate that the client exist
-        when(clientService.exists(nonExistingClient.getRun())).thenReturn(false);
-
-        //Simulate validation
-        when(validationService.isValidDamageLevel(newDamageLevel.toString())).thenReturn(true);
-
-        DamageEvaluationRequest damageEvaluationRequest = new DamageEvaluationRequest();
-        damageEvaluationRequest.setTool(dummyToolItem);
-        damageEvaluationRequest.setLoan(dummyLoan);
-
-        String requestJson = objectMapper.writeValueAsString(damageEvaluationRequest);
-
-        mockMvc.perform(put("/api/tool-items/evaluate-damage/{toolId}", dummyToolItem.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("El cliente no existe en la base de datos"));
-    }
-
 
     //deleteToolById() tests
     //Normal flow case (success)

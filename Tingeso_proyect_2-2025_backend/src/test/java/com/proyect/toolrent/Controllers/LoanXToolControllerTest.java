@@ -5,7 +5,8 @@ import com.proyect.toolrent.Entities.LoanXToolItemEntity;
 import com.proyect.toolrent.Entities.ToolItemEntity;
 import com.proyect.toolrent.Enums.ToolDamageLevel;
 import com.proyect.toolrent.Enums.ToolStatus;
-import com.proyect.toolrent.Services.*;
+import com.proyect.toolrent.Services.LoanService;
+import com.proyect.toolrent.Services.LoanXToolItemService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -63,6 +64,7 @@ public class LoanXToolControllerTest {
                 "Activo",
                 "Vigente",
                 null,
+                null,
                 null);
 
         LoanXToolItemEntity loanXToolItem = new LoanXToolItemEntity(
@@ -103,6 +105,7 @@ public class LoanXToolControllerTest {
                 10000,
                 "Activo",
                 "Vigente",
+                null,
                 null,
                 null
         )));

@@ -3,11 +3,11 @@ package com.proyect.toolrent.Controllers;
 import com.proyect.toolrent.Entities.*;
 import com.proyect.toolrent.Enums.ToolDamageLevel;
 import com.proyect.toolrent.Enums.ToolStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proyect.toolrent.Services.ClientService;
 import com.proyect.toolrent.Services.LoanService;
 import com.proyect.toolrent.Services.SystemConfigurationService;
 import com.proyect.toolrent.Services.ValidationService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -62,6 +63,14 @@ public class LoanControllerTest {
                 "Activo",
                 0,
                 0);
+
+        EmployeeEntity employee = new EmployeeEntity(
+                "12.346.576-8",
+                "Maite",
+                "Mesa",
+                "maite123@gmail.com",
+                "+56936854123",
+                false);
 
         ToolTypeEntity toolType = new ToolTypeEntity(
                 1L,
@@ -119,6 +128,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
+                employee,
                 loanToolsList);
 
         //Simulate that the loan doesn't exist
@@ -131,11 +141,15 @@ public class LoanControllerTest {
         when(validationService.isValidDate(newLoan.getLoanDate())).thenReturn(true);
         when(validationService.isValidReturnDate(newLoan.getReturnDate(), newLoan.getLoanDate())).thenReturn(true);
 
-        given(loanService.createLoan(Mockito.any(LoanEntity.class))).willReturn(newLoan);
+        Principal mockPrincipal = Mockito.mock(Principal.class);
+        Mockito.when(mockPrincipal.getName()).thenReturn(employee.getRun());
+
+        given(loanService.createLoan(Mockito.any(LoanEntity.class), eq(employee.getRun()))).willReturn(newLoan);
 
         String loanJson = objectMapper.writeValueAsString(newLoan);
 
         mockMvc.perform(post("/api/loans")
+                        .principal(mockPrincipal)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loanJson))
                 .andExpect(status().isCreated())
@@ -156,6 +170,15 @@ public class LoanControllerTest {
                 0,
                 0);
 
+        EmployeeEntity employee = new EmployeeEntity(
+                "12.346.576-8",
+                "Maite",
+                "Mesa",
+                "maite123@gmail.com",
+                "+56936854123",
+                false);
+
+
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
@@ -164,6 +187,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
+                employee,
                 null);
 
         String loanJson = objectMapper.writeValueAsString(newLoan);
@@ -191,6 +215,14 @@ public class LoanControllerTest {
                 0,
                 0);
 
+        EmployeeEntity employee = new EmployeeEntity(
+                "12.346.576-8",
+                "Maite",
+                "Mesa",
+                "maite123@gmail.com",
+                "+56936854123",
+                false);
+
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
@@ -199,6 +231,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
+                employee,
                 null);
 
         String loanJson = objectMapper.writeValueAsString(newLoan);
@@ -228,6 +261,14 @@ public class LoanControllerTest {
                 0,
                 0);
 
+        EmployeeEntity employee = new EmployeeEntity(
+                "12.346.576-8",
+                "Maite",
+                "Mesa",
+                "maite123@gmail.com",
+                "+56936854123",
+                false);
+
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10).minusDays(3),
@@ -236,6 +277,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
+                employee,
                 null);
 
         //Simulate that the loan doesn't exist
@@ -269,6 +311,14 @@ public class LoanControllerTest {
                 0,
                 0);
 
+        EmployeeEntity employee = new EmployeeEntity(
+                "12.346.576-8",
+                "Maite",
+                "Mesa",
+                "maite123@gmail.com",
+                "+56936854123",
+                false);
+
         LoanEntity newLoan = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
@@ -277,6 +327,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
+                employee,
                 null);
 
         //Simulate that the loan doesn't exist
@@ -311,6 +362,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 null,
+                null,
                 null);
 
         LoanEntity loan2 = new LoanEntity(
@@ -320,6 +372,7 @@ public class LoanControllerTest {
                 20000,
                 "Finalizado",
                 "Vigente",
+                null,
                 null,
                 null);
 
@@ -359,6 +412,7 @@ public class LoanControllerTest {
                 15000,
                 "Activo",
                 "Vigente",
+                null,
                 null,
                 null);
 
@@ -401,6 +455,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
+                null,
                 null);
 
         LoanEntity loan2 = new LoanEntity(
@@ -410,6 +465,7 @@ public class LoanControllerTest {
                 23000,
                 "Finalizado",
                 "Vigente",
+                null,
                 null,
                 null);
 
@@ -421,6 +477,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 client,
+                null,
                 null);
 
         ArrayList<LoanEntity> loans = new ArrayList<>(Arrays.asList(loan1, loan2, loan3));
@@ -485,6 +542,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 null,
+                null,
                 null);
 
         LoanEntity loan2 = new LoanEntity(
@@ -495,6 +553,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 null,
+                null,
                 null);
 
         LoanEntity loan3 = new LoanEntity(
@@ -504,6 +563,7 @@ public class LoanControllerTest {
                 23000,
                 "Finalizado",
                 "Vigente",
+                null,
                 null,
                 null);
 
@@ -542,10 +602,11 @@ public class LoanControllerTest {
         LoanEntity loan1 = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
-                LocalDate.of(2025, 5, 24),
+                LocalDate.of(2026, 5, 24),
                 15000,
                 "Activo",
                 "Vigente",
+                null,
                 null,
                 null);
 
@@ -555,7 +616,8 @@ public class LoanControllerTest {
                 LocalDate.of(2024, 3, 31),
                 23000,
                 "Finalizado",
-                "Vigente",
+                "Atrasado",
+                null,
                 null,
                 null);
 
@@ -567,23 +629,24 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Atrasado",
                 null,
+                null,
                 null);
 
         List<LoanEntity> loans =  Arrays.asList(loan1, loan2, loan3);
 
         //Simulate filtering with validity "Atrasado"
         List<LoanEntity> OverdueLoans = loans.stream()
-                .filter(c -> c.getValidity().equals("Vigente"))
+                .filter(c -> c.getValidity().equals("Atrasado"))
                 .toList();
 
-        given(loanService.getLoanByValidity("Vigente")).willReturn(OverdueLoans);
+        given(loanService.getLoanByValidity("Atrasado")).willReturn(OverdueLoans);
 
-        mockMvc.perform(get("/api/loans/validity/{validity}", "Vigente"))
+        mockMvc.perform(get("/api/loans/validity/{validity}", "Atrasado"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(OverdueLoans.size())))
-                .andExpect(jsonPath("$[0].id", is(loan1.getId().intValue())))
-                .andExpect(jsonPath("$[1].id", is(loan2.getId().intValue())));
+                .andExpect(jsonPath("$[0].id", is(loan2.getId().intValue())))
+                .andExpect(jsonPath("$[1].id", is(loan3.getId().intValue())));
     }
 
     //Exception (no loan has that validity)
@@ -668,6 +731,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 null,
+                null,
                 loanToolsList_Tool);
 
         LoanEntity loan2 = new LoanEntity(
@@ -678,6 +742,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 null,
+                null,
                 loanToolsList_Tool2);
 
         LoanEntity loan3 = new LoanEntity(
@@ -687,6 +752,7 @@ public class LoanControllerTest {
                 23000,
                 "Finalizado",
                 "Atrasado",
+                null,
                 null,
                 loanToolsList_Tool);
 
@@ -788,6 +854,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 null,
+                null,
                 loanToolsList_Tool);
 
         LoanEntity loan2 = new LoanEntity(
@@ -797,6 +864,7 @@ public class LoanControllerTest {
                 23000,
                 "Finalizado",
                 "Vigente",
+                null,
                 null,
                 loanToolsList_Tool2);
 
@@ -869,6 +937,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
+                null,
                 null);
 
         LoanEntity returnedLoan = new LoanEntity(
@@ -879,6 +948,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 client,
+                null,
                 null);
 
         //Simulate that the loan exist
@@ -909,6 +979,7 @@ public class LoanControllerTest {
                 15000,
                 "Activo",
                 "Vigente",
+                null,
                 null,
                 null);
 
@@ -946,6 +1017,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
+                null,
                 null);
 
         LoanEntity returnedLoan = new LoanEntity(
@@ -956,6 +1028,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 client,
+                null,
                 null);
 
         //Simulate that the loan exist
@@ -995,6 +1068,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
+                null,
                 null);
 
         LoanEntity alreadyReturnedLoan = new LoanEntity(
@@ -1005,6 +1079,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 client,
+                null,
                 null);
 
         //Simulates the search and returns the same loan, but with "Finalizado" status
@@ -1034,6 +1109,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 null,
+                null,
                 null);
 
         when(loanService.getLoanById(updatedLoan.getId())).thenReturn(Optional.of(updatedLoan));
@@ -1060,6 +1136,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 null,
+                null,
                 null);
 
         when(loanService.getLoanById(updatedLoan.getId())).thenReturn(Optional.of(updatedLoan));
@@ -1084,6 +1161,7 @@ public class LoanControllerTest {
                 15000,
                 "Finalizado",
                 "Vigente",
+                null,
                 null,
                 null);
 
@@ -1144,6 +1222,7 @@ public class LoanControllerTest {
                 15000,
                 "Activo",
                 "Vigente",
+                null,
                 null,
                 null);
 

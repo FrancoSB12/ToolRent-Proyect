@@ -35,7 +35,6 @@ public class ClientControllerTest {
     private ValidationService validationService;
 
     //createClient() tests
-
     //Normal flow case (success)
     @Test
     public void createClient_ShouldReturnNewClient() throws Exception {
