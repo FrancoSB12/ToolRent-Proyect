@@ -14,10 +14,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -25,16 +27,15 @@ import java.util.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @WebMvcTest(controllers = LoanController.class,
         excludeAutoConfiguration = { org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientWebSecurityAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration.class})
-@AutoConfigureMockMvc(addFilters = true)
+@AutoConfigureMockMvc(addFilters = false)
 public class LoanControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -140,8 +141,17 @@ public class LoanControllerTest {
                 employee,
                 loanToolsList);
 
-        Authentication auth =
-                new UsernamePasswordAuthenticationToken("12.346.576-8", null, List.of());
+        Jwt jwt = Jwt.withTokenValue("mock-token")
+                .header("alg", "none")
+                .claim("preferred_username", "12.346.576-8")
+                .claim("sub", "test-user")
+                .build();
+
+        // Crear la autenticación con el JWT como principal
+        Authentication auth = new JwtAuthenticationToken(
+                jwt,
+                List.of(new SimpleGrantedAuthority("ROLE_Employee"))
+        );
 
         //Simulate that the loan doesn't exist
         when(loanService.exists(anyLong())).thenReturn(false);
@@ -162,6 +172,7 @@ public class LoanControllerTest {
 
         mockMvc.perform(post("/api/loans")
                         .with(authentication(auth))
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loanJson))
                 .andExpect(status().isCreated())
@@ -250,7 +261,8 @@ public class LoanControllerTest {
                 employee,
                 null);
 
-        String loanJson = objectMapper.writeValueAsString(newLoan);
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken("12.346.576-8", null, List.of());
 
         //Simulate that the loan doesn't exists
         when(loanService.exists(anyLong())).thenReturn(false);
@@ -261,7 +273,11 @@ public class LoanControllerTest {
         //Simulate that the employee exist
         when(employeeService.exists(employee.getRun())).thenReturn(true);
 
+        String loanJson = objectMapper.writeValueAsString(newLoan);
+
         mockMvc.perform(post("/api/loans")
+                        .with(authentication(auth))
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loanJson))
                 .andExpect(status().isNotFound())
@@ -301,6 +317,9 @@ public class LoanControllerTest {
                 employee,
                 null);
 
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken("12.346.576-8", null, List.of());
+
         //Simulate that the loan doesn't exist
         when(loanService.getLoanById(newLoan.getId())).thenReturn(Optional.empty());
 
@@ -317,6 +336,8 @@ public class LoanControllerTest {
         String loanJson = objectMapper.writeValueAsString(newLoan);
 
         mockMvc.perform(post("/api/loans")
+                        .with(authentication(auth))
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loanJson))
                 .andExpect(status().isBadRequest())
@@ -356,6 +377,9 @@ public class LoanControllerTest {
                 employee,
                 null);
 
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken("12.346.576-8", null, List.of());
+
         //Simulate that the loan doesn't exist
         when(loanService.getLoanById(newLoan.getId())).thenReturn(Optional.empty());
 
@@ -372,6 +396,8 @@ public class LoanControllerTest {
         String loanJson = objectMapper.writeValueAsString(newLoan);
 
         mockMvc.perform(post("/api/loans")
+                        .with(authentication(auth))
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loanJson))
                 .andExpect(status().isBadRequest())
