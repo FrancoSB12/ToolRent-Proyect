@@ -65,7 +65,7 @@ class LoanServiceTest {
                 null,
                 null);
 
-        when(loanRepository.findAll()).thenReturn(List.of(loan, loan2));
+        when(loanRepository.findAllWithDetails()).thenReturn(List.of(loan, loan2));
 
         // When
         List<LoanEntity> result = loanService.getAllLoans();
@@ -81,7 +81,7 @@ class LoanServiceTest {
     @Test
     void whenGetAllLoansEmpty_thenReturnsEmptyList() {
         // Given
-        when(loanRepository.findAll()).thenReturn(Collections.emptyList());
+        when(loanRepository.findAllWithDetails()).thenReturn(Collections.emptyList());
 
         // When
         List<LoanEntity> result = loanService.getAllLoans();
@@ -214,7 +214,7 @@ class LoanServiceTest {
                 null,
                 null,
                 null);
-        when(loanRepository.findByStatus("Activo")).thenReturn(List.of(loan, loan2));
+        when(loanRepository.findByStatusWithDetails("Activo")).thenReturn(List.of(loan, loan2));
 
         // When
         List<LoanEntity> result = loanService.getLoanByStatus("Activo");
@@ -1308,46 +1308,5 @@ class LoanServiceTest {
                 .hasMessage("Monto de multa por atraso incorrecta");
     }
 
-    //updateValidity() tests
-    //Normal flow case (success)
-    @Test
-    void whenUpdateValidityAfterNow_thenSetsAtrasado() {
-        // Given
-        LoanEntity loanRequest = new LoanEntity(
-                null,
-                null,
-                null,
-                LocalDate.of(2025, 5, 10),
-                LocalTime.of(15, 25, 48),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null);
 
-        LoanEntity dbLoan = new LoanEntity(
-                13L,
-                LocalDate.of(2025, 5, 10),
-                LocalTime.of(15, 25, 48),
-                LocalDate.of(2025, 5, 24),
-                LocalTime.of(15, 25, 48),
-                1000,
-                "Activo",
-                "Vigente",
-                null,
-                null,
-                null);
-
-        when(loanRepository.findById(dbLoan.getId())).thenReturn(Optional.of(dbLoan));
-
-        // When
-        loanService.updateValidity(dbLoan.getId(), loanRequest);
-
-        // Then
-        ArgumentCaptor<LoanEntity> captor = ArgumentCaptor.forClass(LoanEntity.class);
-        verify(loanRepository).save(captor.capture());
-
-        assertThat(captor.getValue().getValidity()).isEqualTo("Atrasado");
-    }
 }

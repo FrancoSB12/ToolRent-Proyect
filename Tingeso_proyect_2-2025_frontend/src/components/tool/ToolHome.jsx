@@ -69,6 +69,34 @@ const ToolsHome = () => {
         >
         Ver Unidades de Herramienta
         </button>
+
+        <button 
+          className="action-btn"
+          onClick={() => navigate('/tools/rental-fee-config')} 
+        >
+          Configurar Tarifa de Arriendo
+        </button>
+
+        <button 
+          className="action-btn"
+          onClick={() => navigate('/tools/replacement-value-config')} 
+        >
+          Configurar Valor de Reemplazo
+        </button>
+
+        <button 
+          className="action-btn"
+          onClick={() => navigate('/tools/kardex-view')} 
+        >
+          Ver movimientos de Herramientas
+        </button>
+
+        <button 
+          className="action-btn"
+          onClick={() => navigate('/tools/kardex-date-range-report')} 
+        >
+          Ver movimientos entre fechas
+        </button>
       </div>
       
       <div className="card-grid">

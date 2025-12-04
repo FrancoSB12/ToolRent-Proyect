@@ -8,8 +8,12 @@ import PublicHome from './components/home/PublicHome';
 import FullLayout from './components/common/FullLayout';
 import MinimalLayout from './components/common/MinimalLayout';
 import ToolHome from './components/tool/ToolHome';
+import ToolKardexView from './components/tool/ToolKardexView.jsx';
+import ToolKardexDateRangeReport from './components/tool/ToolKardexDateRangeReport.jsx';
 import ToolItemHome from './components/tool/ToolItemHome.jsx';
 import ToolTypeRegister from './components/tool/ToolTypeRegister';
+import ToolTypeRentalFeeConfig from './components/tool/ToolTypeRentalFeeConfig.jsx';
+import ToolTypeReplacementValueConfig from './components/tool/ToolTypeReplacementValueConfig.jsx';
 import ToolItemRegister from './components/tool/ToolItemRegister.jsx';
 import ToolItemEnable from './components/tool/ToolItemEnable.jsx';
 import ToolItemDisable from './components/tool/ToolItemDisable.jsx';
@@ -18,9 +22,12 @@ import ClientHome from './components/client/ClientHome.jsx';
 import ClientRegister from './components/client/ClientRegister.jsx';
 import EmployeeHome from './components/employee/EmployeeHome.jsx';
 import EmployeeRegister from './components/employee/EmployeeRegister.jsx';
+import LoanHome from './components/loan/LoanHome.jsx';
 import LoanRegister from './components/loan/LoanRegister.jsx';
 import LoanReturn from './components/loan/LoanReturn.jsx';
 import LoanReturnProccess from './components/loan/LoanReturnProccess.jsx';
+import LoanLateFeeConfig from './components/loan/LoanLateFeeConfig.jsx';
+import LoanActiveView from './components/loan/LoanActiveView.jsx';
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -103,7 +110,7 @@ function App() {
           element={
             <PrivateRoute 
               element={<ClientHome />} 
-              rolesAllowed={['Admin', 'Employee']} 
+              rolesAllowed={['Admin']} 
             />
           } 
         />
@@ -189,6 +196,57 @@ function App() {
         />
 
         <Route 
+          path="/tools/rental-fee-config" 
+          element={
+            <PrivateRoute 
+              element={<ToolTypeRentalFeeConfig />} 
+              rolesAllowed={['Admin']}
+            />
+          } 
+        />
+
+        <Route 
+          path="/tools/replacement-value-config" 
+          element={
+            <PrivateRoute 
+              element={<ToolTypeReplacementValueConfig />} 
+              rolesAllowed={['Admin']}
+            />
+          } 
+        />
+
+        <Route 
+          path="/tools/kardex-view" 
+          element={
+            <PrivateRoute 
+              element={<ToolKardexView />} 
+              rolesAllowed={['Admin', 'Employee']}
+            />
+          } 
+        />
+
+        <Route 
+          path="/tools/kardex-date-range-report" 
+          element={
+            <PrivateRoute 
+              element={<ToolKardexDateRangeReport />} 
+              rolesAllowed={['Admin', 'Employee']}
+            />
+          } 
+        />
+
+
+        <Route 
+          path="/loans" 
+          element={
+            <PrivateRoute 
+              element={<LoanHome />} 
+              rolesAllowed={['Admin', 'Employee']} 
+            />
+          } 
+        />
+
+        <Route 
           path="/loan/register" 
           element={
             <PrivateRoute 
@@ -213,6 +271,25 @@ function App() {
           element={
             <PrivateRoute 
               element={<LoanReturnProccess />} 
+              rolesAllowed={['Admin', 'Employee']} 
+            />
+          } 
+        />
+
+        <Route 
+          path="/loan/configuration" 
+          element={
+            <PrivateRoute 
+              element={<LoanLateFeeConfig />} 
+              rolesAllowed={['Admin']} 
+            />
+          } 
+        />
+        <Route 
+          path="/loans/active" 
+          element={
+            <PrivateRoute 
+              element={<LoanActiveView />} 
               rolesAllowed={['Admin', 'Employee']} 
             />
           } 

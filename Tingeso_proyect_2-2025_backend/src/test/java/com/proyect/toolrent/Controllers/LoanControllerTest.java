@@ -4,10 +4,7 @@ import com.proyect.toolrent.Entities.*;
 import com.proyect.toolrent.Enums.ToolDamageLevel;
 import com.proyect.toolrent.Enums.ToolStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proyect.toolrent.Services.ClientService;
-import com.proyect.toolrent.Services.LoanService;
-import com.proyect.toolrent.Services.SystemConfigurationService;
-import com.proyect.toolrent.Services.ValidationService;
+import com.proyect.toolrent.Services.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +12,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.security.Principal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -27,11 +27,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 @WebMvcTest(controllers = LoanController.class,
         excludeAutoConfiguration = { org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientWebSecurityAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration.class})
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc(addFilters = true)
 public class LoanControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -47,6 +50,9 @@ public class LoanControllerTest {
 
     @MockBean
     private ClientService clientService;
+
+    @MockBean
+    private EmployeeService employeeService;
 
     @MockBean
     private SystemConfigurationService sysConfigService;
@@ -134,25 +140,28 @@ public class LoanControllerTest {
                 employee,
                 loanToolsList);
 
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken("12.346.576-8", null, List.of());
+
         //Simulate that the loan doesn't exist
         when(loanService.exists(anyLong())).thenReturn(false);
 
         //Simulate that the client exist
         when(clientService.exists(client.getRun())).thenReturn(true);
 
+        //Simulate that the employee exist
+        when(employeeService.exists(employee.getRun())).thenReturn(true);
+
         //Simulates verifications
         when(validationService.isValidDate(newLoan.getLoanDate())).thenReturn(true);
         when(validationService.isValidReturnDate(newLoan.getReturnDate(), newLoan.getLoanDate())).thenReturn(true);
-
-        Principal mockPrincipal = Mockito.mock(Principal.class);
-        Mockito.when(mockPrincipal.getName()).thenReturn(employee.getRun());
 
         given(loanService.createLoan(Mockito.any(LoanEntity.class), eq(employee.getRun()))).willReturn(newLoan);
 
         String loanJson = objectMapper.writeValueAsString(newLoan);
 
         mockMvc.perform(post("/api/loans")
-                        .principal(mockPrincipal)
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loanJson))
                 .andExpect(status().isCreated())
@@ -249,6 +258,9 @@ public class LoanControllerTest {
         //Simulate that the client doesn't exists
         when(clientService.exists(anyString())).thenReturn(false);
 
+        //Simulate that the employee exist
+        when(employeeService.exists(employee.getRun())).thenReturn(true);
+
         mockMvc.perform(post("/api/loans")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loanJson))
@@ -294,6 +306,9 @@ public class LoanControllerTest {
 
         //Simulate that the client exist
         when(clientService.exists(anyString())).thenReturn(true);
+
+        //Simulate that the employee exist
+        when(employeeService.exists(employee.getRun())).thenReturn(true);
 
         //Simulates verifications
         when(validationService.isValidDate(newLoan.getLoanDate())).thenReturn(false);
@@ -346,6 +361,9 @@ public class LoanControllerTest {
 
         //Simulate that the client exist
         when(clientService.exists(anyString())).thenReturn(true);
+
+        //Simulate that the employee exist
+        when(employeeService.exists(employee.getRun())).thenReturn(true);
 
         //Simulates verifications
         when(validationService.isValidDate(newLoan.getLoanDate())).thenReturn(true);
@@ -949,7 +967,7 @@ public class LoanControllerTest {
         //It's simulated that the service returns 5000
         when(sysConfigService.getLateReturnFee()).thenReturn(5000);
 
-        mockMvc.perform(get("/api/loans/configuration/late-fee")
+        mockMvc.perform(get("/api/loans/configuration/late-return-fee")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("5000"));
@@ -974,6 +992,14 @@ public class LoanControllerTest {
                 0,
                 0);
 
+        EmployeeEntity employee = new EmployeeEntity(
+                "12.346.576-8",
+                "Maite",
+                "Mesa",
+                "maite123@gmail.com",
+                "+56936854123",
+                false);
+
         LoanEntity loanToReturn = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
@@ -984,7 +1010,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
-                null,
+                employee,
                 null);
 
         LoanEntity returnedLoan = new LoanEntity(
@@ -997,7 +1023,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 client,
-                null,
+                employee,
                 null);
 
         //Simulate that the loan exist
@@ -1005,6 +1031,9 @@ public class LoanControllerTest {
 
         //Simulate that the client exist
         when(clientService.exists(anyString())).thenReturn(true);
+
+        //Simulate that the employee exist
+        when(employeeService.exists(employee.getRun())).thenReturn(true);
 
         given(loanService.returnLoan(anyLong(), Mockito.any(LoanEntity.class))).willReturn(returnedLoan);
 
@@ -1039,6 +1068,9 @@ public class LoanControllerTest {
         //Simulate that the client exist
         when(clientService.exists(anyString())).thenReturn(true);
 
+        //Simulate that the employee exist
+        when(clientService.exists(anyString())).thenReturn(true);
+
         String loanJson = objectMapper.writeValueAsString(nonExistingLoan);
 
         mockMvc.perform(put("/api/loans/return/{id}", nonExistingLoan.getId())
@@ -1060,6 +1092,14 @@ public class LoanControllerTest {
                 0,
                 0);
 
+        EmployeeEntity employee = new EmployeeEntity(
+                "12.346.576-8",
+                "Maite",
+                "Mesa",
+                "maite123@gmail.com",
+                "+56936854123",
+                false);
+
         LoanEntity loanToReturn = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
@@ -1070,7 +1110,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
-                null,
+                employee,
                 null);
 
         LoanEntity returnedLoan = new LoanEntity(
@@ -1083,7 +1123,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 client,
-                null,
+                employee,
                 null);
 
         //Simulate that the loan exist
@@ -1091,6 +1131,9 @@ public class LoanControllerTest {
 
         //Simulate that the client doesn't exist
         when(clientService.exists(anyString())).thenReturn(false);
+
+        //Simulate that the employee exist
+        when(employeeService.exists(employee.getRun())).thenReturn(true);
 
         given(loanService.returnLoan(anyLong(), Mockito.any(LoanEntity.class))).willReturn(returnedLoan);
 
@@ -1115,6 +1158,14 @@ public class LoanControllerTest {
                 0,
                 0);
 
+        EmployeeEntity employee = new EmployeeEntity(
+                "12.346.576-8",
+                "Maite",
+                "Mesa",
+                "maite123@gmail.com",
+                "+56936854123",
+                false);
+
         LoanEntity loanToReturn = new LoanEntity(
                 13L,
                 LocalDate.of(2025, 5, 10),
@@ -1125,7 +1176,7 @@ public class LoanControllerTest {
                 "Activo",
                 "Vigente",
                 client,
-                null,
+                employee,
                 null);
 
         LoanEntity alreadyReturnedLoan = new LoanEntity(
@@ -1138,7 +1189,7 @@ public class LoanControllerTest {
                 "Finalizado",
                 "Vigente",
                 client,
-                null,
+                employee,
                 null);
 
         //Simulates the search and returns the same loan, but with "Finalizado" status
@@ -1146,6 +1197,9 @@ public class LoanControllerTest {
 
         //Simulate that the client exist
         when(clientService.exists(anyString())).thenReturn(true);
+
+        //Simulate that the employee exist
+        when(employeeService.exists(employee.getRun())).thenReturn(true);
 
         String loanJson = objectMapper.writeValueAsString(loanToReturn);
 
@@ -1276,34 +1330,14 @@ public class LoanControllerTest {
         verify(sysConfigService, never()).updateLateReturnFee(anyInt());
     }
 
-    //updateValidity() tests
+    //checkAndSetLateStatuses() tests
     //Normal flow case (success)
     @Test
-    public void updateValidity_ShouldCallServiceAndReturnNoContent() throws Exception {
-        LoanEntity loanToUpdate = new LoanEntity(
-                13L,
-                LocalDate.of(2025, 5, 10),
-                LocalTime.of(15, 25, 48),
-                LocalDate.of(2025, 5, 24),
-                LocalTime.of(15, 25, 48),
-                15000,
-                "Activo",
-                "Vigente",
-                null,
-                null,
-                null);
-
-        //when is not used because the return of the service is void
-
-        String loanJson = objectMapper.writeValueAsString(loanToUpdate);
-
-        mockMvc.perform(put("/api/loans/validity/{id}", loanToUpdate.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loanJson))
+    public void checkAndSetLateStatuses_ShouldReturnNoContent() throws Exception {
+        mockMvc.perform(put("/api/loans/update-late-statuses")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-
-        //It is verified that updateValidity in loanService was called only once with ANY LoanEntity object
-        verify(loanService, times(1)).updateValidity(eq(loanToUpdate.getId()), Mockito.any(LoanEntity.class));
+        verify(loanService).checkAndSetLateStatuses();
     }
 
 }

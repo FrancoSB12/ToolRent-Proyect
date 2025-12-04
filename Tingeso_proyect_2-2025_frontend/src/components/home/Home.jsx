@@ -28,6 +28,13 @@ const Home = () => {
 
         <button 
           className="nav-button" 
+          onClick={() => navigate('/loans')}
+        >
+          Gestión de Préstamos
+        </button>
+
+        <button 
+          className="nav-button" 
           onClick={() => navigate('/employees')}
         >
           Gestión de Empleados

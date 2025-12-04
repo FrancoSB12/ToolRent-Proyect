@@ -41,7 +41,11 @@ public interface LoanRepository extends JpaRepository<LoanEntity, Long> {
     List<LoanEntity> findOverdueLoans(@Param("clientRun") String clientRun,
                                       @Param("today") LocalDate today);
 
-    List<LoanEntity> findByStatus(String status);
+    @Query("SELECT l FROM LoanEntity l JOIN FETCH l.client c JOIN FETCH l.employee e LEFT JOIN FETCH l.loanTools lt")
+    List<LoanEntity> findAllWithDetails();
+
+    @Query("SELECT l FROM LoanEntity l JOIN FETCH l.client c JOIN FETCH l.employee e LEFT JOIN FETCH l.loanTools lt WHERE l.status = :status")
+    List<LoanEntity> findByStatusWithDetails(@Param("status") String status);
 
     List<LoanEntity> findByValidity(String validity);
 

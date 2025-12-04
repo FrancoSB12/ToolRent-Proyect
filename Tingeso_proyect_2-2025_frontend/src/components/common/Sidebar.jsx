@@ -22,6 +22,11 @@ const Sidebar = ({ isOpen }) => {
                         </NavLink>
                     </li>
                     <li>
+                        <NavLink to="/loans">
+                        Gestión de Prestamos
+                        </NavLink>
+                    </li>
+                    <li>
                         <NavLink to="/employees">
                         Gestión de Empleados
                         </NavLink>

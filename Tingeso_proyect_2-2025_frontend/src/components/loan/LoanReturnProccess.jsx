@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useKeycloak } from '@react-keycloak/web';
 import loanService from '../../services/loanService';
 import '../../styles/Register.css';
 import '../../styles/LoanReturn.css';
@@ -14,6 +15,7 @@ const DAMAGE_OPTIONS = [
 const LoanReturnProcess = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { keycloak } = useKeycloak();
 
     const [loan, setLoan] = useState(null);
     const [toolConditions, setToolConditions] = useState({});
@@ -55,6 +57,13 @@ const LoanReturnProcess = () => {
         e.preventDefault();
         if (!loan) return;
 
+        const employeeRun = keycloak.tokenParsed?.preferred_username;
+
+        if (!employeeRun) {
+            toast.error("No se pudo identificar al empleado. Inicie sesión nuevamente.");
+            return;
+        }
+
         const loanToReturn = {
             id: loan.id,
             loanDate: loan.loanDate,
@@ -64,8 +73,8 @@ const LoanReturnProcess = () => {
             lateReturnFee: loan.lateReturnFee,
             status: loan.status,
             validity: loan.validity,
-            client: loan.client,
-            employee: loan.employee,
+            client: { run: loan.client.run },
+            employee: { run: employeeRun },
             
             loanTools: loan.loanTools.map(lt => ({
                 id: lt.id,

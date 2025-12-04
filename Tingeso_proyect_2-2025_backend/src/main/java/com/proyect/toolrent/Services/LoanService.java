@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class LoanService {
@@ -39,7 +40,7 @@ public class LoanService {
     }
 
     public List<LoanEntity> getAllLoans(){
-        return loanRepository.findAll();
+        return loanRepository.findAllWithDetails();
     }
 
     public Optional<LoanEntity> getLoanById(Long id){
@@ -51,7 +52,7 @@ public class LoanService {
     }
 
     public List<LoanEntity> getLoanByStatus(String status){
-        return loanRepository.findByStatus(status);
+        return loanRepository.findByStatusWithDetails(status);
     }
 
     public List<LoanEntity> getLoanByValidity(String validity){
@@ -98,12 +99,14 @@ public class LoanService {
     @Transactional
     public LoanEntity createLoan(LoanEntity loan, String employeeRun){
         //The employee is searched in the database
-        Optional<EmployeeEntity> dbEmployee = employeeService.getEmployeeByRun(employeeRun);
-        EmployeeEntity dbEmployeeEnt = dbEmployee.get();
+        EmployeeEntity dbEmployeeEnt = employeeService.getEmployeeByRun(employeeRun)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+        //EmployeeEntity dbEmployeeEnt = dbEmployee.get();
 
         //The client is searched in the database
-        Optional<ClientEntity> dbClient = clientService.getClientByRun(loan.getClient().getRun());
-        ClientEntity dbClientEnt = dbClient.get();
+        ClientEntity dbClientEnt = clientService.getClientByRun(loan.getClient().getRun())
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        //ClientEntity dbClientEnt = dbClient.get();
 
         //Save the loan tools list
         List<LoanXToolItemEntity> toolItemsFromFront = loan.getLoanTools();
@@ -280,14 +283,24 @@ public class LoanService {
         return loanRepository.save(dbLoanEnt);
     }
 
-    public void updateValidity(Long id, LoanEntity loan){
-        //The loan is searched in the database
-        Optional<LoanEntity> dbLoan = loanRepository.findById(id);
-        LoanEntity dbLoanEnt = dbLoan.get();
+    @Transactional
+    public void checkAndSetLateStatuses() {
+        List<LoanEntity> activeLoans = loanRepository.findByStatusWithDetails("Activo");
 
-        if(loan.getReturnDate().isBefore(LocalDate.now())){
-            dbLoanEnt.setValidity("Atrasado");
-            loanRepository.save(dbLoanEnt);
+        for (LoanEntity loan : activeLoans) {
+            if (loan.getReturnDate().isBefore(LocalDate.now())) {
+
+                //Update the validity to 'Atrasado'
+                loan.setValidity("Atrasado");
+                loanRepository.save(loan);
+
+                //Restrict the client if it isn't
+                ClientEntity client = loan.getClient();
+                if (!client.getStatus().equals("Restringido")) {
+                    client.setStatus("Restringido");
+                    clientService.saveClient(client);
+                }
+            }
         }
     }
 }

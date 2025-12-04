@@ -29,7 +29,7 @@ const getMostLoanedTools = () => {
 }
 
 const getCurrentLateFee = () => {
-  return httpClient.get('/api/loans/configuration/current-late-fee');
+  return httpClient.get('/api/loans/configuration/late-return-fee');
 }
 
 const returnLoan = (id, data) => {
@@ -40,12 +40,12 @@ const updateLateReturnFee = (id, data) => {
   return httpClient.put(`/api/loans/update-late-fee/${id}`, data);
 }
 
-const updateCurrentLateReturnFee = (data) => {
-  return httpClient.put('/api/loans/configuration/late-fee', data);
+const updateGlobalLateReturnFee = (amount) => {
+  return httpClient.put(`/api/loans/configuration/late-fee?amount=${amount}`, {});
 }
 
-const updateValidity = (id, data) => {
-  return httpClient.put(`/api/loans/validity/${id}`, data);
+const updateLateStatuses = () => {
+  return httpClient.post("/api/loans/update-late-statuses");
 }
 
-export default { create, getAll, getById, getActiveByClientRun, getByStatus, getByValidity, getMostLoanedTools, getCurrentLateFee, returnLoan, updateLateReturnFee, updateCurrentLateReturnFee, updateValidity };
+export default { create, getAll, getById, getActiveByClientRun, getByStatus, getByValidity, getMostLoanedTools, getCurrentLateFee, returnLoan, updateLateReturnFee, updateGlobalLateReturnFee, updateLateStatuses };

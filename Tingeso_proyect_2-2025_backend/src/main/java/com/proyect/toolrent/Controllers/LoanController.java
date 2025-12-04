@@ -1,18 +1,17 @@
 package com.proyect.toolrent.Controllers;
 
+import com.proyect.toolrent.Entities.ClientEntity;
 import com.proyect.toolrent.Entities.LoanEntity;
-import com.proyect.toolrent.Services.ClientService;
-import com.proyect.toolrent.Services.LoanService;
-import com.proyect.toolrent.Services.SystemConfigurationService;
-import com.proyect.toolrent.Services.ValidationService;
+import com.proyect.toolrent.Services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -26,27 +25,43 @@ public class LoanController {
     private final ValidationService validationService;
     private final ClientService clientService;
     private final SystemConfigurationService sysConfigService;
+    private final EmployeeService employeeService;
 
     @Autowired
-    public LoanController(LoanService loanService, ValidationService validationService, ClientService clientService, SystemConfigurationService sysConfigService) {
+    public LoanController(LoanService loanService, ValidationService validationService, ClientService clientService, SystemConfigurationService sysConfigService, EmployeeService employeeService) {
         this.loanService = loanService;
         this.validationService = validationService;
         this.clientService = clientService;
         this.sysConfigService = sysConfigService;
+        this.employeeService = employeeService;
     }
 
     //Create loan
     @PreAuthorize("hasAnyRole('Employee','Admin')")
     @PostMapping
-    public ResponseEntity<?> createLoan(@RequestBody LoanEntity loan, Principal principal){
+    public ResponseEntity<?> createLoan(@RequestBody LoanEntity loan, Authentication authentication){
         //It's verified that the loan doesn't exist
         if(loan.getId() != null && loanService.exists(loan.getId())){
             return new ResponseEntity<>("El prestamo ya existe en la base de datos", HttpStatus.CONFLICT);
         }
 
+        String currentEmployeeRun;
+        //This is to get the employee run from the keycloak
+        if (authentication.getPrincipal() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            currentEmployeeRun = jwt.getClaimAsString("preferred_username");
+        } else {
+            currentEmployeeRun = authentication.getName();
+        }
+
         //It's verified that the client exist
         if(!clientService.exists(loan.getClient().getRun())){
             return new ResponseEntity<>("Cliente no encontrado en la base de datos", HttpStatus.NOT_FOUND);
+        }
+
+        //It's verified that the employee exist
+        if(!employeeService.exists(currentEmployeeRun)){
+            return new ResponseEntity<>("Empleado no encontrado en la base de datos", HttpStatus.NOT_FOUND);
         }
 
         //The data is validated for accuracy
@@ -57,8 +72,6 @@ public class LoanController {
         if(!validationService.isValidReturnDate(loan.getReturnDate(), loan.getLoanDate())){
             return new ResponseEntity<>("Fecha de devolución incorrecta", HttpStatus.BAD_REQUEST);
         }
-
-        String currentEmployeeRun = principal.getName();
 
         try {
             LoanEntity newLoan = loanService.createLoan(loan, currentEmployeeRun);
@@ -117,7 +130,7 @@ public class LoanController {
     }
 
     @PreAuthorize("hasRole('Admin')")
-    @GetMapping("/configuration/late-fee")
+    @GetMapping("/configuration/late-return-fee")
     public ResponseEntity<Integer> getCurrentLateFee() {
         return ResponseEntity.ok(sysConfigService.getLateReturnFee());
     }
@@ -135,6 +148,11 @@ public class LoanController {
             //It's verified that the client exist
             if (!clientService.exists(loan.getClient().getRun())) {
                 return new ResponseEntity<>("Cliente no encontrado en la base de datos", HttpStatus.NOT_FOUND);
+            }
+
+            //It's verified that the employee exist
+            if(!employeeService.exists(loan.getEmployee().getRun())){
+                return new ResponseEntity<>("Empleado no encontrado en la base de datos", HttpStatus.NOT_FOUND);
             }
 
             if (existingLoan.get().getStatus().equals("Finalizado")) {
@@ -181,9 +199,9 @@ public class LoanController {
     }
 
     @PreAuthorize("hasAnyRole('Employee','Admin')")
-    @PutMapping("/validity/{id}")
-    public ResponseEntity<Void> updateValidity(@PathVariable Long id, @RequestBody LoanEntity loan){
-        loanService.updateValidity(id, loan);
+    @PutMapping("/update-late-statuses")
+    public ResponseEntity<Void> checkAndSetLateStatuses(){
+        loanService.checkAndSetLateStatuses();
         return ResponseEntity.noContent().build();
     }
 }
