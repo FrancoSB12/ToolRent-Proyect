@@ -27,7 +27,7 @@ pipeline {
                     
                     script {
                         docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
-                            def app = docker.build("${DOCKER_USER}/${IMAGE_BACKEND}:latest")
+                            def app = docker.build("${DOCKER_USER}/${IMAGE_BACKEND}:latest", '--no-cache .')
                             app.push()
                         }
                     }
@@ -41,7 +41,7 @@ pipeline {
                 dir('Tingeso_proyect_2-2025_frontend') {
                     script {
                         docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
-                            def app = docker.build("${DOCKER_USER}/${IMAGE_FRONTEND}:latest")
+                            def app = docker.build("${DOCKER_USER}/${IMAGE_FRONTEND}:latest", '--no-cache .')
                             app.push()
                         }
                     }
